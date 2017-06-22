@@ -121,12 +121,16 @@
     /**
      * only trigger touches when the left mousebutton has been pressed
      * @param touchType
+	 * @param {Boolean} preventMouseEvents
      * @returns {Function}
      */
-    function onMouse(touchType) {
+    function onMouse(touchType, preventMouseEvents) {
         return function(ev) {
-            // prevent mouse events
-            preventMouseEvents(ev);
+
+        	if (preventMouseEvents !== false) {
+				// prevent mouse events
+				preventMouseEvents(ev);
+			}
 
             if (ev.which !== 1) {
                 return;
@@ -289,28 +293,41 @@
 
     /**
      * TouchEmulator initializer
+	 *
+	 * @param selector
+	 * @param {Boolean} preventMouseEvents
      */
-    function TouchEmulator() {
+    function TouchEmulator(selector, preventMouseEvents) {
         if (hasTouchSupport()) {
             return;
         }
 
+        var _selector;
+
+		if (arguments.length === 0) {
+			_selector = window;
+		} else {
+			_selector = document.querySelectorAll(selector);
+		}
+
         fakeTouchSupport();
 
-        window.addEventListener("mousedown", onMouse('touchstart'), true);
-        window.addEventListener("mousemove", onMouse('touchmove'), true);
-        window.addEventListener("mouseup", onMouse('touchend'), true);
+		for (var i = 0; i < _selector.length; i++) {
+			_selector[i].addEventListener("mousedown", onMouse('touchstart', preventMouseEvents), true);
+			_selector[i].addEventListener("mousemove", onMouse('touchmove', preventMouseEvents), true);
+			_selector[i].addEventListener("mouseup", onMouse('touchend', preventMouseEvents), true);
 
-        window.addEventListener("mouseenter", preventMouseEvents, true);
-        window.addEventListener("mouseleave", preventMouseEvents, true);
-        window.addEventListener("mouseout", preventMouseEvents, true);
-        window.addEventListener("mouseover", preventMouseEvents, true);
+			_selector[i].addEventListener("mouseenter", preventMouseEvents, true);
+			_selector[i].addEventListener("mouseleave", preventMouseEvents, true);
+			_selector[i].addEventListener("mouseout", preventMouseEvents, true);
+			_selector[i].addEventListener("mouseover", preventMouseEvents, true);
 
-        // it uses itself!
-        window.addEventListener("touchstart", showTouches, true);
-        window.addEventListener("touchmove", showTouches, true);
-        window.addEventListener("touchend", showTouches, true);
-        window.addEventListener("touchcancel", showTouches, true);
+			// it uses itself!
+			_selector[i].addEventListener("touchstart", showTouches, true);
+			_selector[i].addEventListener("touchmove", showTouches, true);
+			_selector[i].addEventListener("touchend", showTouches, true);
+			_selector[i].addEventListener("touchcancel", showTouches, true);
+		}
     }
 
     // start distance when entering the multitouch mode
