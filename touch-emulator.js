@@ -121,13 +121,13 @@
     /**
      * only trigger touches when the left mousebutton has been pressed
      * @param touchType
-	 * @param {Boolean} preventMouseEvents
+	 * @param {Boolean} disableMouseEvents
      * @returns {Function}
      */
-    function onMouse(touchType, preventMouseEvents) {
+    function onMouse(touchType, disableMouseEvents) {
         return function(ev) {
 
-        	if (preventMouseEvents !== false) {
+        	if (disableMouseEvents !== false) {
 				// prevent mouse events
 				preventMouseEvents(ev);
 			}
@@ -295,9 +295,9 @@
      * TouchEmulator initializer
 	 *
 	 * @param selector
-	 * @param {Boolean} preventMouseEvents
+	 * @param {Boolean} disableMouseEvents
      */
-    function TouchEmulator(selector, preventMouseEvents) {
+    function TouchEmulator(selector, disableMouseEvents) {
         if (hasTouchSupport()) {
             return;
         }
@@ -313,14 +313,16 @@
         fakeTouchSupport();
 
 		for (var i = 0; i < _selector.length; i++) {
-			_selector[i].addEventListener("mousedown", onMouse('touchstart', preventMouseEvents), true);
-			_selector[i].addEventListener("mousemove", onMouse('touchmove', preventMouseEvents), true);
-			_selector[i].addEventListener("mouseup", onMouse('touchend', preventMouseEvents), true);
+			_selector[i].addEventListener("mousedown", onMouse('touchstart', disableMouseEvents), true);
+			_selector[i].addEventListener("mousemove", onMouse('touchmove', disableMouseEvents), true);
+			_selector[i].addEventListener("mouseup", onMouse('touchend', disableMouseEvents), true);
 
-			_selector[i].addEventListener("mouseenter", preventMouseEvents, true);
-			_selector[i].addEventListener("mouseleave", preventMouseEvents, true);
-			_selector[i].addEventListener("mouseout", preventMouseEvents, true);
-			_selector[i].addEventListener("mouseover", preventMouseEvents, true);
+			if (disableMouseEvents !== false) {
+				_selector[i].addEventListener("mouseenter", preventMouseEvents, true);
+				_selector[i].addEventListener("mouseleave", preventMouseEvents, true);
+				_selector[i].addEventListener("mouseout", preventMouseEvents, true);
+				_selector[i].addEventListener("mouseover", preventMouseEvents, true);
+			}
 
 			// it uses itself!
 			_selector[i].addEventListener("touchstart", showTouches, true);
